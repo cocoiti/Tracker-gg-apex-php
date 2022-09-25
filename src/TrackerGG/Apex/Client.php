@@ -1,20 +1,20 @@
 <?php
 
-namespace Cocoiti\TrackerGG;
+namespace Cocoiti\TrackerGG\Apex;
 
-use \GuzzleHttp\Client;
-use \GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Client as GuzzleClient;
+use GuzzleHttp\Psr7\Response;
 
 /**
- * Undocumented class
+ * TrackerGG\Apaex\Cleint
  */
-class ApexClient
+class Client
 {
     public const PLATFORM_ORIGIN = 'origin';
     public const PLATFORMS = [self::PLATFORM_ORIGIN];
     protected const BASE_URL = 'https://public-api.tracker.gg/v2/apex/standard/';
     protected string $apiKey = '';
-    protected Client $client;
+    protected GuzzleClient $client;
 
     /**
      * construct
@@ -24,7 +24,7 @@ class ApexClient
     public function __construct(string $api_key)
     {
         $this->apiKey = $api_key;
-        $this->client = new Client();
+        $this->client = new GuzzleClient();
     }
 
     /**
@@ -36,14 +36,20 @@ class ApexClient
     public function getProfile(string $platform_user_identifier, string $platform = self::PLATFORM_ORIGIN)
     {
         if (!$this->isValidPlatform($platform)) {
-            throw new InvalidArgumentException(sprintf('%s is not suport platform', $platform));
+            throw new \InvalidArgumentException(sprintf('%s is not suport platform', $platform));
         }
 
         if (!$this->isValidPlatformUserIdentifier($platform_user_identifier)) {
-            throw new InvalidArgumentException(sprintf('%s is not invalid user string', $user));
+            throw new \InvalidArgumentException(sprintf('%s is not invalid user string', $user));
         }
         $path = sprintf('profile/%s/%s', $platform, $platform_user_identifier);
-        return $this->request($path);
+
+        $response = $this->request($path);
+
+        $profile = new Profile();
+        $profile->setResponce($response);
+
+        return $profile;
     }
 
     /**
