@@ -1,0 +1,13 @@
+{
+  "name": "cocoiti/tracker-gg-apex-php",
+  "description": "PHP wrapper tracker.gg for apex api",
+  "require": {
+    "php": ">=8.0.0",
+    "guzzlehttp/guzzle": "^7.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Cocoiti\\" : "src/"
+    }
+  }
+}
