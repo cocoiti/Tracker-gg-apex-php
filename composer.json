@@ -5,9 +5,30 @@
     "php": ">=8.0.0",
     "guzzlehttp/guzzle": "^7.0"
   },
+  "require-dev": {
+    "phpunit/phpunit": "^9.0"
+  },
   "autoload": {
     "psr-4": {
       "Cocoiti\\" : "src/"
     }
-  }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "test": "phpunit",
+    "test-coverage": "phpunit --coverage-html coverage"
+  },
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "cocoiti",
+      "email": "cocoiti@gmail.com"
+    }
+  ],
+  "keywords": ["tracker", "apex", "legends", "api", "php"],
+  "homepage": "https://github.com/cocoiti/tracker-gg-apex-php"
 }

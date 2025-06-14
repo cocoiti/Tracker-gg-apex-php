@@ -4,9 +4,11 @@ namespace Cocoiti\TrackerGG\Apex;
 
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Psr7\Response;
+use Cocoiti\TrackerGG\Apex\Exception\ApiException;
+use Cocoiti\TrackerGG\Apex\Exception\InvalidDataException;
 
 /**
- * TrackerGG\Apaex\Cleint
+ * TrackerGG\Apex\Client
  */
 class Client
 {
@@ -23,6 +25,9 @@ class Client
      */
     public function __construct(string $api_key)
     {
+        if (empty($api_key)) {
+            throw new InvalidDataException('API key cannot be empty');
+        }
         $this->apiKey = $api_key;
         $this->client = new GuzzleClient();
     }
@@ -36,37 +41,46 @@ class Client
     public function getProfile(string $platform_user_identifier, string $platform = self::PLATFORM_ORIGIN)
     {
         if (!$this->isValidPlatform($platform)) {
-            throw new \InvalidArgumentException(sprintf('%s is not suport platform', $platform));
+            throw new InvalidDataException(sprintf('%s is not supported platform', $platform));
         }
 
         if (!$this->isValidPlatformUserIdentifier($platform_user_identifier)) {
-            throw new \InvalidArgumentException(sprintf('%s is not invalid user string', $user));
+            throw new InvalidDataException(sprintf('%s is not valid user identifier', $platform_user_identifier));
         }
         $path = sprintf('profile/%s/%s', $platform, $platform_user_identifier);
 
         $response = $this->request($path);
 
         $profile = new Profile();
-        $profile->setResponce($response);
+        $profile->setResponse($response);
 
         return $profile;
     }
 
     /**
-     * Undocumented function
+     * Make API request
      *
      * @param string $path
-     * @return \Response
+     * @return Response
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     protected function request(string $path): Response
     {
-        $responce = $this->client->request('GET', self::BASE_URL . $path, [
-            'headers' => [
-                'TRN-Api-Key' => $this->apiKey,
-            ],
-        ]);
+        try {
+            $response = $this->client->request('GET', self::BASE_URL . $path, [
+                'headers' => [
+                    'TRN-Api-Key' => $this->apiKey,
+                ],
+            ]);
 
-        return $responce;
+            if ($response->getStatusCode() !== 200) {
+                throw new ApiException('API request failed with status: ' . $response->getStatusCode());
+            }
+
+            return $response;
+        } catch (\GuzzleHttp\Exception\RequestException $e) {
+            throw new ApiException('API request failed: ' . $e->getMessage(), 0, $e);
+        }
     }
 
     /**
